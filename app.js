@@ -32,27 +32,28 @@ var product = require('./bin/product');
 // var scraper = require('./bin/scraper');
 
 // Express Handler
-var server = express();
+var app = express();
 
 // Render Configuration
-server.set('views', __dirname + '/views');
-server.set('view engine', 'html');
-server.engine('html', handlebars.__express);
+app.set('views', __dirname + '/views');
+app.set('view engine', 'html');
+app.engine('html', handlebars.__express);
 
 // Module Configuration
-server.use(index);
-server.use(product);
+app.use(index);
+app.use(product);
 
 // Define static directory 'views' for error files
-server.use(express.static(path.join(__dirname, 'views')));
-server.use(function(req, res){
+app.use(express.static(path.join(__dirname, 'views')));
+app.use(function(req, res){
     res.status(400);
     res.sendFile(__dirname + '/views/404.html');
 });
-server.use(function(error, req, res, next){
+app.use(function(error, req, res, next){
     res.status(500);
     res.sendFile(__dirname + '/views/500.html');
 });
+//Socket.io Module
+var httpServer = require('socket.io').listen(app.listen(3000));
 
-server.listen(3000);
 console.log("Listening");

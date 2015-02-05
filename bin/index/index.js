@@ -3,21 +3,27 @@ var handlebars = require('hbs');
 var fs = require('fs');
 var bodyParser = require('body-parser');
 
+var initialization = require('./public/initialization');
+
 var app = module.exports = express();
 
 app.set('views', __dirname + '/base');
 app.set('view engine', 'html');
 app.engine('html', handlebars.__express);
 
+app.use(express.static(__dirname +'/client'));
 app.use(express.static(__dirname +'/public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
-
 
 app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.html');
 });
 
+app.get('/initialization', function(req, res){
+	var commands = initialization.getAPICommands();
+	return res.json(commands);
+});
 
 app.post('/initialization/modules', function(req, res){
 	var requestedModule = req.body;
