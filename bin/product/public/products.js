@@ -45,18 +45,14 @@ var product = function(){
 			};
 
 			var asin = function(){
-				var min = 10;
-				var max = 10;
-				this.Validate = function(productID){
-
-				};
+				this.min = 10;
+				this.max = 10;
+				this.regex = '^[a-zA-Z0-9]+';
 			};
 			var isbn = function(){
-				var min = 10;
-				var max = 13;
-				this.validate = function(productID){
-
-				};
+				this.min = 10;
+				this.max = 13;
+				this.regex = '/\b(?:ISBN(?:: ?| ))?((?:97[89])?\d{9}[\dx])\b/i'; //http://stackoverflow.com/questions/14095778/regex-differentiating-between-isbn-10-and-isbn-13
 			};
 			var upc = function(){
 				var min = 12;
@@ -93,9 +89,18 @@ var product = function(){
 				for(var i = 0; i < length; i++){
 					if (amazonID.idType === amazonIDEnums[i]){
 						var validator = getProductIDValidator(amazonID.idType);
-						if (validator !== null){
+						if (validator !== null && (typeof(validator) !== 'undefinde')){
+							var min = validator.
+						}
 
-							return true;
+
+
+
+
+
+
+						if (validator !== null){
+							return validator.validate(amazonID);
 						}
 					}
 				}
