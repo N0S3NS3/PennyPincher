@@ -2,11 +2,15 @@
 // Product Handler
 // index.js: RESTful API handler for Product object CRUD functionality
 //***************************************************************************
+console.log(__dirname + '../../');
+var config = require('../../initialization')('index_productConfig');
 
-var express = require('express');
-var path = require('path');
-var products = require('./public/products');
-var app = module.exports = express();
+var express = config.modules.express,
+	path = config.modules.path,
+	products = config.modules.products,
+	mongooes = config.modules.mongoose,
+	app = express();
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 //***************************************************************************
@@ -15,7 +19,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 //		parameters from the client. Parameters to request a product are AmazonID and Tag
 //***************************************************************************
 app.get('/product', function(req, res){
-	var product = new products();
+	
 	res.send('success');
 	//validate the parameters
 });

@@ -11,49 +11,34 @@
 //  handled as separate modules.
 //***************************************************************************
 
-// Modules 
-// Express Module
-var express = require('express');
-// Path Module
-var path = require('path');
-// HandleBars Module
-var handlebars = require('hbs');
-// Index Module 
-// Will handle the main functionality of the web application, the main forms in which user 
-// interaction takes place is encapsulated within this modules
-var index = require('./bin/index');
-// Database Module
-// Will handle the queries of either a relational or document database 
-// var database = require('./bin/database');
-// Product Module 
-// Will handle the CRUD related functionality of Product objects which are used within the app
-var product = require('./bin/product');
-// Scraper Module 
-// var scraper = require('./bin/scraper');
+var buildSettings = 'development production stating'.split(' ');
+var settings = buildSettings[0];
 
-// Express Handler
-var app = express();
+var config = require(__dirname+'/initialization')('appConfig');
 
-// Render Configuration
-app.set('views', __dirname + '/views');
-app.set('view engine', 'html');
-app.engine('html', handlebars.__express);
+var express = config.modules.express, 
+	path = config.modules.path, 
+	handlebars = config.modules.handlebars,
+	index = config.modules.index,
+	product = config.modules.product,
+	socketIO = config.modules.socketIO,
+	//logger = config.modules.logger,
+	app = express();
 
-// Module Configuration
+app.set(config.render.viewsDirectory.views, config.render.viewsDirectory.dir);
+app.set(config.render.viewEngine.viewengine, config.render.viewEngine.engine);
+app.engine(config.render.htmlRouting.engine, config.render.htmlRouting.routing);
+
 app.use(index);
 app.use(product);
 
-// Define static directory 'views' for error files
-app.use(express.static(path.join(__dirname, 'views')));
+app.use(express.static(path.join(__dirname,'views')));
 app.use(function(req, res){
-    res.status(400);
-    res.sendFile(__dirname + '/views/404.html');
+	res.status(config.error.notFound.status);
+	res.sendFile(config.error.notFound.result);
 });
-app.use(function(error, req, res, next){
-    res.status(500);
-    res.sendFile(__dirname + '/views/500.html');
+app.use(function(req, res){
+	res.status(config.error.unknown.status);
+	res.sendFile(config.error.unknown.result);
 });
-//Socket.io Module
-var httpServer = require('socket.io').listen(app.listen(3000));
-
-console.log("Listening");
+var httpServer = socketIO.listen(app.listen(config.listeningPort));

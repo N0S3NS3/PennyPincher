@@ -1,133 +1,73 @@
-var product = function(){
+var Product = function(productConfig){
 
-	var mongoose = require('mongoose');
-
-	var databaseHandler = (function(){
-		var dbHost;
-
-		var connect = function(){
-			mongoose.connect(dbHost, function(err){
-				if (err){
-					//log this error
-					throw err;
-				}
-			});
-		};
-
-		return {
-			postProduct: function(product){
-				connect();
-				product.save(function(err){
-
-				});
-			},
-			getProduct: function(reqType, reqArgs){
-				if (reqType === 'idType'){
-
-				} if (reqType === 'productID'){
-
-				} if (reqType === 'tag'){
-
-				}
-			}
-		};
-	})();
+	var scraperKey = productConfig.scraperKey;
+	var threshold_days = productConfig.updateThreshold_days;
+	var threshold_sec = productConfig.updateThreshold_sec;
+	var threshold_milli = productConfig.updateThreshold_milli;
+	var errors = productConfig.errors;
 
 	var schemaHandler = function(){
 
-		var product = function(){
+		this.productModelTypes = 'Product Detail Analytic'.split(' ');
 
-			var amazonIDEnums = 'asin isbn upc gtin'.split(' ');
-			
-			var amazonIDSchmea = {
-				idType: {type: String},
-				productID: {type: String}
-			};
+		var productSchema = mongoose.Schema({
+			asin: {type: String, required: true},
+			title: {type: String, required: true},
+			price: {type: String, required: true},
+			image: {type: String, required: false},
+			details: {type: Schema.Types.ObjectID, required: true, ref: 'Detail'},
+			analytics: {type: Schema.Types.ObjectID, required:true, ref: 'Analytic'}
+		});
 
-			var asin = function(){
-				this.min = 10;
-				this.max = 10;
-				this.regex = '^[a-zA-Z0-9]+';
-			};
-			var isbn = function(){
-				this.min = 10;
-				this.max = 13;
-				this.regex = '/\b(?:ISBN(?:: ?| ))?((?:97[89])?\d{9}[\dx])\b/i'; //http://stackoverflow.com/questions/14095778/regex-differentiating-between-isbn-10-and-isbn-13
-			};
-			var upc = function(){
-				var min = 12;
-				var max = 12;
-				this.validate = function(productID){
+		//detailSchema 
+		var detailSchema = mongoose.Schema({
+			asin: {type: String, required: true},
+			tags: {type: [String], required: false},
+			desc: {type: [String], required: false}
+		});
 
-				};
-			};
-			var gtin = function(){
-				var min = 14;
-				var max = 14;
-				this.validate = function(productID){
-
-				};
-			};
-
-			var getProductIDValidator = function(productID){
-				switch(productID){
-					case 'asin':
-						return new asin();
-					case 'isbn':
-						return new isbn();
-					case 'upc':
-						return new upc();
-					case 'gtin':
-						return new gtin();
-					default:
-						return null;
-				}
-			};
-
-			var amazonIDValidation = function(amazonID){
-				var length = amazonIDEnums;
-				for(var i = 0; i < length; i++){
-					if (amazonID.idType === amazonIDEnums[i]){
-						var validator = getProductIDValidator(amazonID.idType);
-						if (validator !== null && (typeof(validator) !== 'undefinde')){
-							var min = validator.
-						}
-
-
-
-
-
-
-
-						if (validator !== null){
-							return validator.validate(amazonID);
-						}
-					}
-				}
-				return false;
-			};
-
-			this.productSchema = mongoose.Schema({
-				amazonID: {type: amazonIDSchema, required: true, validate: [amazonIDValidation, 'Amazon ID Not Valid']},
-				tags: {type: [String], required: true},
-				images: {type: [String], required: true}, //How do we store images?
-				analytics: {type: Schema.Types.ObjectId, required: true, ref: 'Analytic'}		
-			});
-
+		//analyticSchema
+		var priceSchema = {
+			timestamp: {type: Date, required: true},
+			price: {type: String, required: true},
+			seller: {type: sellerSchema, required: true}
 		};
-		var analytic = function(){
+		var sellerSchema = {
+			account: {type: String, required: true},
+			rating: {type: String, required: false}
+		};
+		var analyticSchema = mongoose.Schema({
+			asin: {type: String, required: true},
+			prices: {type: priceSchema, required: true}
+		});
 
-			this.analyticSchema = mongoose.Schema({
-				timestamp: {type: Date, required: true}
-			});
 
+		var productModels = {
+			'Product': mongoose.model('Product', productSchema),
+			'Detail': mongoose.model('Detail', detailSchema),
+			'Analytic': mongoose.model('Analytic', analyticSchema)
 		};
 
-		this.Product = mongoose.model('Product', product.productSchema);
-		this.Analytic = mongoose.model('Analytic', analytic.analyticSchema);
-
+		this.getModel = function(type){
+			var length = productModelTypes.length;
+			for(var i = 0; i < length; i++){
+				if (type === productModelTypes[i]){
+					return productModelTypes[i];
+				}
+			}
+			return null;
+		};
+		this.getModels = function(){
+			return productModels;
+		};
 	};
 
-module.exports = product;
-
+	this.postProduct = function(key, product){
+		//check scraper key
+	};
+	this.getProduct = function(request){
+		return errors.get;
+	};
 };
+
+module.exports = new Product();
